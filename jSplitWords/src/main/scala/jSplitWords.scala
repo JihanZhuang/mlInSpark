@@ -18,6 +18,10 @@ object jSplitWords {
   case class RawDataRecord(category: String,siteId:String,page:String, text: String)
 
   def main(args : Array[String]) {
+    /*var test="我和你新联";
+   var tmp=splitString(test,5)
+    tmp.foreach(println)
+    return*/
     val conf = new SparkConf().setMaster("local").setAppName("jSplitWords").set("spark.sql.crossJoin.enabled","true")
     val sc = new SparkContext(conf)
 
@@ -143,20 +147,30 @@ object jSplitWords {
     }
     wordsJoin.collect().foreach(println)*/
   }
-  def splitString(str:String,left:Int): Unit ={
+  def splitString(str:String,left:Int): ArrayBuffer[String] ={
       var strList=ArrayBuffer[String]()
-      if(Int==0){
-        return 0;
-      }else{
+      if(left==0){
+        return strList
+      }
+    if(str.length==0){
+        return strList
+    }else{
         var start=str.length-left;
-        var merge=""
         for(i<-1 to left){
-          if(start+i<=str.length+1) {
-            var tmpStr = str.substring(start, start + i)
-            merge+=","
-            merge+=splitString(str,left-1)
+          if(start+i<=str.length) {
+            var tmpStr = ","+str.substring(start, start + i)
+            var tmpList=splitString(str.substring(start+i),left-start-i)
+            if(tmpList.size==0){
+              strList+=tmpStr
+            }else {
+              for (j <- 0 to tmpList.size-1) {
+                strList += tmpStr + tmpList.apply(j)
+              }
+            }
+            //strList+=tmpStr//splitString(str.substring(start+i),left-1)
           }
         }
+        strList
       }
   }
 }
