@@ -6,7 +6,6 @@ import org.apache.spark.SparkContext
 import org.apache.spark.ml.feature.HashingTF
 import org.apache.spark.ml.feature.IDF
 import org.apache.spark.ml.feature.Tokenizer
-import org.apache.spark.ml.classification.NaiveBayes
 import org.apache.spark.sql.functions._
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.unsafe.types.UTF8String
