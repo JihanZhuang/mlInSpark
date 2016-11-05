@@ -6,6 +6,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.ml.feature.HashingTF
 import org.apache.spark.ml.feature.IDF
 import org.apache.spark.ml.feature.Tokenizer
+import org.apache.spark.ml.classification.NaiveBayes
 import org.apache.spark.sql.functions._
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.unsafe.types.UTF8String
@@ -58,6 +59,7 @@ object jSplitWords {
     )
     rdd.getClass
     rdd.foreach(println)*/
+    //左信息和右信息
     var words=srcRdd.flatMap(row=>{
       var arr=ArrayBuffer[(String,String)]()
       var wordCount=5
@@ -76,13 +78,13 @@ object jSplitWords {
       }
       arr
     })
-    words.sortBy(row=>row._1).foreach(println)
+    var tmp=words.toDF("word","left").select("word","left").rdd//.sortBy(row=>(row.apply(1).toString,true,1)).foreach(println)
     println("左信息聚合")
-    var wordsLeft=words.groupBy(row=>row._1).map(row=>{
+    var wordsLeft=tmp.groupBy(row=>row.apply(0).toString).map(row=>{
       var data=row._2;
       var leftMap=ListBuffer[(String ,Int)]()
       for(item <- data){
-        leftMap+=((item._2,1))
+        leftMap+=((item.apply(1).toString,1))
       }
       leftMap.getClass
       var tmp=leftMap.groupBy(row=>row._1).mapValues(_.map(_._2).sum)
@@ -90,7 +92,8 @@ object jSplitWords {
       (row._1,tmp)
     })
     //wordsLeft.foreach(println)
-    var tmp=wordsLeft.map(row=>{
+    //Info Entropy
+    var wordsLeftIE=wordsLeft.map(row=>{
       var leftMap=row._2
       var sum=leftMap.map(_._2).sum.toDouble
       var tmp=leftMap.map(_._2).map(value=>{
@@ -101,7 +104,7 @@ object jSplitWords {
       var leftInfo=tmp.sum*(-1)
       (row._1,leftInfo)
     })
-    tmp.foreach(println)
+    wordsLeftIE.sortBy(row=>row._1.length).foreach(println)
     /*var sumCount=words.count()
     var wordsCount=words.reduceByKey(_+_)
     wordsCount.collect().foreach(println)
