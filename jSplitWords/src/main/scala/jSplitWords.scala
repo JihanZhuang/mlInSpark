@@ -1,7 +1,6 @@
 /**
   * Created by jihanzhuang on 2016/11/1.
   */
-import com.google.common.collect.MapMaker
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.ml.feature.HashingTF
