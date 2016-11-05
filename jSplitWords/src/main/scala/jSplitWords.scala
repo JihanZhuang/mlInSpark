@@ -128,15 +128,17 @@ object jSplitWords {
     var wordJoin=eachWordCountDF.join(eachWordCountDF1,eachWordCountDF.col("word").contains(eachWordCountDF1.col("word"))).toDF("word","count","contain","ccount")
     var wordJoinRdd=wordJoin.rdd.groupBy(row=>row.apply(0))
     wordJoinRdd.foreach(println)
-    wordJoinRdd.map{row=>{
+    wordJoinRdd.map(row=>row._2).foreach(println)
+    /*wordJoinRdd.map{row=>{
       var word=row._1
+      var part=row._2
       //var tmp=1.0/sum
       //tmp
-      var len=word.toString.length
-      for(i<-1 to len){
+      var wordCombination=splitString(word.toString,word.toString.length)
+      for(i<-0 to wordCombination.size){
 
       }
-    }}//.foreach(println)
+    }}*///.foreach(println)
     /*var sumCount=words.count()
     var wordsCount=words.reduceByKey(_+_)
     wordsCount.collect().foreach(println)
