@@ -123,6 +123,11 @@ object jSplitWords {
     var eachWordCountDF1=eachWordCount.toDF("word","count")
     var wordJoin=eachWordCountDF.join(eachWordCountDF1,eachWordCountDF.col("word").contains(eachWordCountDF1.col("word"))).toDF("word","count","contain","ccount")
     var wordJoinRdd=wordJoin.rdd.groupBy(row=>row.apply(0))
+    wordJoinRdd.map{row=>{
+      var word=row._1
+      //var tmp=1.0/sum
+      //tmp
+    }}//.foreach(println)
     /*var sumCount=words.count()
     var wordsCount=words.reduceByKey(_+_)
     wordsCount.collect().foreach(println)
