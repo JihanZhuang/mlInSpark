@@ -180,7 +180,7 @@ object jSplitWords {
           }
         listOfAll+=plus
       }
-      (word,listOfAll.min)
+      (word.toString,listOfAll.min)
     }}
     wordCombSolid.sortBy(row=>row._2).foreach(println)
     /*var sumCount=words.count()
@@ -192,6 +192,12 @@ object jSplitWords {
       case Row(name:String,count:Int,name1:String,count1:Int)=>(name,(count,name1,count1))
     }
     wordsJoin.collect().foreach(println)*/
+    var wordsLeftIEdf=wordsLeftIE.toDF("word1","li")
+    var wordsRightIEdf=wordsRightIE.toDF("word2","ri")
+    var leftJoinRight=wordsLeftIEdf.join(wordsRightIEdf,wordsLeftIEdf.col("word1")===wordsRightIEdf.col("word2")).select("word1","li","ri")//.toDF("word1","li","ri"))
+    var wordCombSolidDf=wordCombSolid.toDF("word","solid")
+    var finalDf=wordCombSolidDf.join(leftJoinRight,wordCombSolidDf.col("word")===leftJoinRight.col("word1")).select("word","solid","li","ri")
+    finalDf.rdd.foreach(println)
   }
   //字符串组合切割
   def splitString(str:String,left:Int): ArrayBuffer[String] ={
