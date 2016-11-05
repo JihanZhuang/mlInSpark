@@ -123,10 +123,15 @@ object jSplitWords {
     var eachWordCountDF1=eachWordCount.toDF("word","count")
     var wordJoin=eachWordCountDF.join(eachWordCountDF1,eachWordCountDF.col("word").contains(eachWordCountDF1.col("word"))).toDF("word","count","contain","ccount")
     var wordJoinRdd=wordJoin.rdd.groupBy(row=>row.apply(0))
+    wordJoinRdd.foreach(println)
     wordJoinRdd.map{row=>{
       var word=row._1
       //var tmp=1.0/sum
       //tmp
+      var len=word.toString.length
+      for(i<-1 to len){
+
+      }
     }}//.foreach(println)
     /*var sumCount=words.count()
     var wordsCount=words.reduceByKey(_+_)
@@ -137,5 +142,21 @@ object jSplitWords {
       case Row(name:String,count:Int,name1:String,count1:Int)=>(name,(count,name1,count1))
     }
     wordsJoin.collect().foreach(println)*/
+  }
+  def splitString(str:String,left:Int): Unit ={
+      var strList=ArrayBuffer[String]()
+      if(Int==0){
+        return 0;
+      }else{
+        var start=str.length-left;
+        var merge=""
+        for(i<-1 to left){
+          if(start+i<=str.length+1) {
+            var tmpStr = str.substring(start, start + i)
+            merge+=","
+            merge+=splitString(str,left-1)
+          }
+        }
+      }
   }
 }
