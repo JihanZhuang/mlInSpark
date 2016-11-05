@@ -118,6 +118,34 @@ object jSplitWords {
       (row._1,leftInfo)
     })
     wordsLeftIE.sortBy(row=>row._1.length).foreach(println)
+
+    println("右聚合度计算")
+    var rightDoc=wordsDF.select("word","right").rdd
+    var wordsRight=rightDoc.groupBy(row=>row.apply(0).toString).map(row=>{
+      var data=row._2;
+      var leftMap=ListBuffer[(String ,Int)]()
+      for(item <- data){
+        leftMap+=((item.apply(1).toString,1))
+      }
+      leftMap.getClass
+      var tmp=leftMap.groupBy(row=>row._1).mapValues(_.map(_._2).sum)
+      //var tmp=rdd.map(word=>(word,1)).reduceByKey(_+_)
+      (row._1,tmp)
+    })
+    //wordsRight.foreach(println)
+    var wordsRightIE=wordsRight.map(row=>{
+      var leftMap=row._2
+      var sum=leftMap.map(_._2).sum.toDouble
+      var tmp=leftMap.map(_._2).map(value=>{
+        var info=0.0
+        info=(value.toDouble/sum)*Math.log(value/sum)
+        info
+      })
+      var leftInfo=tmp.sum*(-1)
+      (row._1,leftInfo)
+    })
+    wordsRightIE.sortBy(row=>row._1.length).foreach(println)
+    //凝固度计算
     var wordsCount=wordsDF.select("word","count").rdd
     //wordsCount.getClass
     var eachWordCount=wordsCount.map({case Row(word:String,count:Int)=>word->count}).reduceByKey(_+_)
@@ -129,16 +157,32 @@ object jSplitWords {
     var wordJoinRdd=wordJoin.rdd.groupBy(row=>row.apply(0))
     wordJoinRdd.foreach(println)
     wordJoinRdd.map(row=>row._2).foreach(println)
-    /*wordJoinRdd.map{row=>{
+    var wordCombSolid=wordJoinRdd.map{row=>{
       var word=row._1
-      var part=row._2
+      var part=row._2.map{case Row(word:String,count:Int,part:String,sum:Int)=>part->sum}
+      var wordCount=row._2.toList.apply(0).apply(1).asInstanceOf[Integer].toDouble
+      var listMap=collection.mutable.Map[String,Int]()
+      for(i<-part){
+        listMap+=i
+      }
+      var overall=wordCount/sum
+      //part
       //var tmp=1.0/sum
       //tmp
+      var listOfAll=ListBuffer[Double]()
       var wordCombination=splitString(word.toString,word.toString.length)
-      for(i<-0 to wordCombination.size){
-
+      for(i<-0 to wordCombination.size-1){
+          var partStr=wordCombination.apply(i).split(",").filter(x=>x!="").toList
+          var plus=1.0;
+          for(j<-0 to partStr.size-1){
+            var value=listMap(partStr.apply(j)).toDouble/sum
+            plus*=value
+          }
+        listOfAll+=plus
       }
-    }}*///.foreach(println)
+      (word,listOfAll.min)
+    }}
+    wordCombSolid.sortBy(row=>row._2).foreach(println)
     /*var sumCount=words.count()
     var wordsCount=words.reduceByKey(_+_)
     wordsCount.collect().foreach(println)
@@ -149,6 +193,7 @@ object jSplitWords {
     }
     wordsJoin.collect().foreach(println)*/
   }
+  //字符串组合切割
   def splitString(str:String,left:Int): ArrayBuffer[String] ={
       var strList=ArrayBuffer[String]()
       if(left==0){
