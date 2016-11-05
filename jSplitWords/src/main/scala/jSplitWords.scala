@@ -59,7 +59,7 @@ object jSplitWords {
     )
     rdd.getClass
     rdd.foreach(println)*/
-    //左信息和右信息
+    //左信息和右信息   
     var words=srcRdd.flatMap(row=>{
       var arr=ArrayBuffer[(String,String)]()
       var wordCount=5
