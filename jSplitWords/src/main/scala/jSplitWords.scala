@@ -86,7 +86,8 @@ object jSplitWords {
       arr
     })
     words.sortBy(row=>row._1.length).foreach(println)
-    var leftDoc=words.toDF("word","left","right","count").select("word","left").rdd//.sortBy(row=>(row.apply(1).toString,true,1)).foreach(println)
+    var wordsDF=words.toDF("word","left","right","count")
+    var leftDoc=wordsDF.select("word","left").rdd//.sortBy(row=>(row.apply(1).toString,true,1)).foreach(println)
     println("左信息聚合")
     var wordsLeft=leftDoc.groupBy(row=>row.apply(0).toString).map(row=>{
       var data=row._2;
@@ -113,6 +114,9 @@ object jSplitWords {
       (row._1,leftInfo)
     })
     wordsLeftIE.sortBy(row=>row._1.length).foreach(println)
+    var wordsCount=wordsDF.select("word","count").rdd
+    //wordsCount.getClass
+    var eachWordCount=wordsCount.map({case Row(word:String,count:Int)=>word->count}).reduceByKey(_+_)
     /*var sumCount=words.count()
     var wordsCount=words.reduceByKey(_+_)
     wordsCount.collect().foreach(println)
