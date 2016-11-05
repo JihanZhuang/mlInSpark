@@ -59,28 +59,36 @@ object jSplitWords {
     )
     rdd.getClass
     rdd.foreach(println)*/
-    //左信息和右信息   
+    //var test="送阿桑菲尼"
+    //左信息和右信息
     var words=srcRdd.flatMap(row=>{
-      var arr=ArrayBuffer[(String,String)]()
+      var arr=ArrayBuffer[(String,String,String,Int)]()
       var wordCount=5
       for(i<-0 to row.text.length-1){
         for(j<-1 to wordCount){
           if(i==0){
-            if(i+j<row.text.length-1) {
-              arr += ((row.text.substring(i, Math.min(i + j, row.text.length - 1)) -> " "))
+            if(i+j<row.text.length) {
+              arr += ((row.text.substring(i, i + j) , " ",row.text.substring(i+j,i+j+1),1))
+            }
+            if(i+j==row.text.length){
+              arr += ((row.text.substring(i, i + j) , " "," ",1))
             }
           }else {
-            if(i+j<row.text.length-1) {
-              arr += ((row.text.substring(i, Math.min(i + j, row.text.length - 1)) -> row.text.substring(i - 1, i)))
+            if(i+j==row.text.length) {
+              arr += ((row.text.substring(i, i + j) ,row.text.substring(i - 1, i)," ",1))
+            }
+            if(i+j<row.text.length){
+              arr += ((row.text.substring(i, i + j) ,row.text.substring(i - 1, i),row.text.substring(i+j,i+j+1),1))
             }
           }
         }
       }
       arr
     })
-    var tmp=words.toDF("word","left").select("word","left").rdd//.sortBy(row=>(row.apply(1).toString,true,1)).foreach(println)
+    words.sortBy(row=>row._1.length).foreach(println)
+    var leftDoc=words.toDF("word","left","right","count").select("word","left").rdd//.sortBy(row=>(row.apply(1).toString,true,1)).foreach(println)
     println("左信息聚合")
-    var wordsLeft=tmp.groupBy(row=>row.apply(0).toString).map(row=>{
+    var wordsLeft=leftDoc.groupBy(row=>row.apply(0).toString).map(row=>{
       var data=row._2;
       var leftMap=ListBuffer[(String ,Int)]()
       for(item <- data){
