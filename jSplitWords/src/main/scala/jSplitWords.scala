@@ -26,37 +26,7 @@ object jSplitWords {
         var data = x.split(",")
         RawDataRecord(data(0),data(1),data(2),data(3))
     }
-    /*//存放(String,Int)结构。
-    var words=srcRdd.map(row=>{
-      var arr=collection.mutable.ArrayBuffer[(String,Int)]()
-      for(i<-0 to row.text.length-1){
-        for(j<-1 to 5){
-            arr+=((row.text.substring(i,Math.min(i+j,row.text.length-1)),1))
-        }
-      }
-      arr
-    })*/
-    /*var words=srcRdd.flatMap(row=>{
-      var arr=Map[String,Tuple2[Map[String,Int],Map[String,Int]]]()
-      var wordCount=5;
-      for(i<-0 to row.text.length-1-wordCount){
-        for(j<-1 to wordCount){
-            arr++=Map(row.text.substring(i,Math.min(i+j,row.text.length-1))->Tuple2(Map("st"->1),Map("sdf"->1)))
-        }
-      }
-      arr
-    })
-    words.collect().foreach(println)
-    var wordsCount=words.groupBy(row=>row._1).mapValues(_.size)*/
-    /*var rdd=srcRdd.map(row=>
-      {
-        var tmp=row.text.replaceAll(","," ")
-        tmp
-      }
-    )
-    rdd.getClass
-    rdd.foreach(println)*/
-    //var test="送阿桑菲尼"
+
     //左信息和右信息
     var words=srcRdd.flatMap(row=>{
       var arr=ArrayBuffer[(String,String,String,Int)]()
@@ -138,7 +108,9 @@ object jSplitWords {
     //凝固度计算
     var wordsCount=wordsDF.select("word","count").rdd
     //wordsCount.getClass
-    var eachWordCount=wordsCount.map({case Row(word:String,count:Int)=>word->count}).reduceByKey(_+_)
+    var eachWordCount=wordsCount.map({
+      case Row(word:String,count:Int)=>word->count
+    }).reduceByKey(_+_)
     var sum=eachWordCount.map(_._2).sum
     println(sum)
     var eachWordCountDF=eachWordCount.toDF("word","count")
@@ -190,7 +162,7 @@ object jSplitWords {
     */
   def splitString(str:String,left:Int): ArrayBuffer[String] ={
       var strList=ArrayBuffer[String]()
-      if(left==0){
+     if(left==0){
         return strList
       }
     if(str.length==0){
