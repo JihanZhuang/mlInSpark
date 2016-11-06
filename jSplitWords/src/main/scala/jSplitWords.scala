@@ -3,13 +3,6 @@
   */
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import org.apache.spark.ml.feature.HashingTF
-import org.apache.spark.ml.feature.IDF
-import org.apache.spark.ml.feature.Tokenizer
-import org.apache.spark.ml.classification.NaiveBayes
-import org.apache.spark.sql.functions._
-import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
-import org.apache.spark.unsafe.types.UTF8String
 import org.apache.spark.sql.Row
 
 import scala.collection.mutable.{ArrayBuffer, ListBuffer, Map}
@@ -101,10 +94,8 @@ object jSplitWords {
       }
       leftMap.getClass
       var tmp=leftMap.groupBy(row=>row._1).mapValues(_.map(_._2).sum)
-      //var tmp=rdd.map(word=>(word,1)).reduceByKey(_+_)
       (row._1,tmp)
     })
-    //wordsLeft.foreach(println)
     //Info Entropy
     var wordsLeftIE=wordsLeft.map(row=>{
       var leftMap=row._2
@@ -129,7 +120,6 @@ object jSplitWords {
       }
       leftMap.getClass
       var tmp=leftMap.groupBy(row=>row._1).mapValues(_.map(_._2).sum)
-      //var tmp=rdd.map(word=>(word,1)).reduceByKey(_+_)
       (row._1,tmp)
     })
     //wordsRight.foreach(println)
@@ -183,15 +173,7 @@ object jSplitWords {
       (word.toString,listOfAll.min)
     }}
     wordCombSolid.sortBy(row=>row._2).foreach(println)
-    /*var sumCount=words.count()
-    var wordsCount=words.reduceByKey(_+_)
-    wordsCount.collect().foreach(println)
-    var wordsCountDf1=wordsCount.toDF("name","count")
-    var wordsCountDf2=wordsCount.toDF("name1","count1")
-    var wordsJoin=wordsCountDf1.join(wordsCountDf2,wordsCountDf1.col("name").contains(wordsCountDf2.col("name1"))).map{
-      case Row(name:String,count:Int,name1:String,count1:Int)=>(name,(count,name1,count1))
-    }
-    wordsJoin.collect().foreach(println)*/
+
     var wordsLeftIEdf=wordsLeftIE.toDF("word1","li")
     var wordsRightIEdf=wordsRightIE.toDF("word2","ri")
     var leftJoinRight=wordsLeftIEdf.join(wordsRightIEdf,wordsLeftIEdf.col("word1")===wordsRightIEdf.col("word2")).select("word1","li","ri")//.toDF("word1","li","ri"))
@@ -220,7 +202,6 @@ object jSplitWords {
                 strList += tmpStr + tmpList.apply(j)
               }
             }
-            //strList+=tmpStr//splitString(str.substring(start+i),left-1)
           }
         }
         strList
