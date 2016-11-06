@@ -174,14 +174,20 @@ object jSplitWords {
     }}
     wordCombSolid.sortBy(row=>row._2).foreach(println)
 
-    var wordsLeftIEdf=wordsLeftIE.toDF("word1","li")
-    var wordsRightIEdf=wordsRightIE.toDF("word2","ri")
-    var leftJoinRight=wordsLeftIEdf.join(wordsRightIEdf,wordsLeftIEdf.col("word1")===wordsRightIEdf.col("word2")).select("word1","li","ri")//.toDF("word1","li","ri"))
+    var wordsLeftIEdf=wordsLeftIE.toDF("word1","le")
+    var wordsRightIEdf=wordsRightIE.toDF("word2","re")
+    var leftJoinRight=wordsLeftIEdf.join(wordsRightIEdf,wordsLeftIEdf.col("word1")===wordsRightIEdf.col("word2")).select("word1","le","re")//.toDF("word1","li","ri"))
     var wordCombSolidDf=wordCombSolid.toDF("word","solid")
-    var finalDf=wordCombSolidDf.join(leftJoinRight,wordCombSolidDf.col("word")===leftJoinRight.col("word1")).select("word","solid","li","ri")
+    var finalDf=wordCombSolidDf.join(leftJoinRight,wordCombSolidDf.col("word")===leftJoinRight.col("word1")).select("word","solid","le","re")
     finalDf.rdd.foreach(println)
   }
   //字符串组合切割
+  /**
+    * 递归切割字符串f(5)=f(4)+f(3)+f(2)+f(1)
+    * @param str
+    * @param left
+    * @return
+    */
   def splitString(str:String,left:Int): ArrayBuffer[String] ={
       var strList=ArrayBuffer[String]()
       if(left==0){
